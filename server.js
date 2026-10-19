@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { q, STAGES, STAGE_LABELS, statistiek, wis } from './src/db.js';
 import { laadConfig, beheerAuth } from './src/auth.js';
 import { begrens } from './src/begrenzer.js';
+import { normaliseerKioskcode } from './src/kioskcode.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const cfg = laadConfig();
@@ -23,12 +24,9 @@ const LEAD_BEWAARDAGEN = Number(process.env.LEAD_BEWAARDAGEN || 28);
 if (!(LEAD_BEWAARDAGEN > 0)) throw new Error('LEAD_BEWAARDAGEN moet een positief aantal dagen zijn.');
 /* Kioskcode: alleen gekoppelde tablets mogen scans en leads opslaan. Geen echte
    login (één gedeelde code), wel een drempel tegen bots en willekeurige bezoekers. */
-const KIOSK_CODE = process.env.KIOSK_CODE || '';
-if (KIOSK_CODE.length < 24) {
-  throw new Error(
-    'KIOSK_CODE ontbreekt of is korter dan 24 tekens. Maak er een met:\n' +
-      "  node -e \"console.log(require('crypto').randomBytes(24).toString('base64url'))\"",
-  );
+const KIOSK_CODE = normaliseerKioskcode(process.env.KIOSK_CODE || '');
+if (KIOSK_CODE.length < 12) {
+  throw new Error('KIOSK_CODE ontbreekt of is korter dan 12 tekens. Maak er een met: npm run kioskcode');
 }
 
 // Achter Caddy/nginx: TRUST_PROXY=1, anders is req.ip het IP van de proxy.
@@ -107,7 +105,7 @@ const limiet = (naam, max) => (req, res, next) =>
 const sha = (v) => crypto.createHash('sha256').update(String(v)).digest();
 const KIOSK_HASH = sha(KIOSK_CODE);
 const kiosk = (req, res, next) =>
-  crypto.timingSafeEqual(sha(req.get('x-kiosk-code') || ''), KIOSK_HASH)
+  crypto.timingSafeEqual(sha(normaliseerKioskcode(req.get('x-kiosk-code') || '')), KIOSK_HASH)
     ? next()
     : fout(res, 403, 'Deze tablet is niet gekoppeld.');
 
