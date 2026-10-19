@@ -13,6 +13,7 @@ const BASE = `http://127.0.0.1:${PORT}`;
 const map = fs.mkdtempSync(path.join(os.tmpdir(), 'brs-test-'));
 const TENANT = crypto.randomUUID(), CLIENT = crypto.randomUUID();
 const DB = path.join(map, 'test.db');
+const KIOSK = 'k'.repeat(32);
 
 // Twee leads vooraf: een van 29 dagen oud (moet weg bij het starten) en een van 27 (blijft).
 process.env.DB_PATH = DB;
@@ -27,7 +28,7 @@ const server = spawn(process.execPath, ['server.js'], {
   env: {
     ...process.env, PORT, HOST: '127.0.0.1', DB_PATH: DB, BASE_URL: BASE,
     ENTRA_TENANT_ID: TENANT, ENTRA_CLIENT_ID: CLIENT, ENTRA_CLIENT_SECRET: 'x'.repeat(32),
-    ADMIN_EMAILS: 'beheer@aqua.nl', ADMIN_WACHTWOORD_HASH: hashWachtwoord('correct horse battery'),
+    KIOSK_CODE: KIOSK, ADMIN_EMAILS: 'beheer@aqua.nl', ADMIN_WACHTWOORD_HASH: hashWachtwoord('correct horse battery'),
   },
   stdio: ['ignore', 'pipe', 'inherit'],
 });
@@ -40,7 +41,7 @@ after(async () => {
 });
 
 const post = (url, body, headers = {}) =>
-  fetch(BASE + url, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body), redirect: 'manual' });
+  fetch(BASE + url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-kiosk-code': KIOSK, ...headers }, body: JSON.stringify(body), redirect: 'manual' });
 const get = (url) => fetch(BASE + url, { redirect: 'manual' });
 
 const scan = { id: crypto.randomUUID(), gestart: new Date().toISOString(), stage: 'result', uitkomst: 'resultaat bekeken',
@@ -52,6 +53,17 @@ test('scan opslaan, ook herhaald en halverwege', async () => {
   assert.equal((await post('/api/scan', scan)).status, 204);
   // Oudere stand mag een verdere niet terugzetten (geen fout, wel genegeerd)
   assert.equal((await post('/api/scan', { ...scan, stage: 'step-1', uitkomst: 'afgehaakt' })).status, 204);
+});
+
+test('zonder of met foute kioskcode wordt niets opgeslagen', async () => {
+  const lead = { id: crypto.randomUUID(), bedrijf: 'Bot BV', naam: 'Bot', telefoon: '0612345678' };
+  for (const code of ['', 'fout', KIOSK + 'x']) {
+    assert.equal((await post('/api/lead', lead, { 'x-kiosk-code': code })).status, 403, code);
+    assert.equal((await post('/api/scan', scan, { 'x-kiosk-code': code })).status, 403, code);
+  }
+  assert.equal((await post('/api/kiosk', {}, { 'x-kiosk-code': 'fout' })).status, 403);
+  assert.equal((await post('/api/kiosk', {})).status, 204);
+  assert.equal(db.prepare("SELECT COUNT(*) AS n FROM leads WHERE bedrijf = 'Bot BV'").get().n, 0);
 });
 
 test('scan met onbekende waarden wordt geweigerd', async () => {
