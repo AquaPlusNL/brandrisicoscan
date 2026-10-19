@@ -9,6 +9,11 @@ if (!dbPath || !directory) {
   process.exit(2);
 }
 
+/* Back-ups bevatten leads. Zonder opruimen blijven die bewaard tot ver na de
+   bewaartermijn van 28 dagen. Een lead is hiermee na uiterlijk
+   LEAD_BEWAARDAGEN + BACKUP_BEWAARDAGEN overal weg. */
+const BACKUP_BEWAARDAGEN = Number(process.env.BACKUP_BEWAARDAGEN || 7);
+
 const name = `brandrisicoscan-${new Date().toISOString().replace(/[:.]/g, '-')}.db`;
 const target = path.join(directory, name);
 const temporary = `${target}.tmp`;
@@ -34,6 +39,16 @@ try {
   fs.chmodSync(temporary, 0o600);
   fs.renameSync(temporary, target);
   console.log(`Backup gemaakt: ${target}`);
+
+  // Pas na een geslaagde back-up opruimen: mislukt hij, dan houden we de oude.
+  const grens = Date.now() - BACKUP_BEWAARDAGEN * 86_400_000;
+  for (const bestand of fs.readdirSync(directory)) {
+    const pad = path.join(directory, bestand);
+    if (/^brandrisicoscan-.*\.db$/.test(bestand) && fs.statSync(pad).mtimeMs < grens) {
+      fs.unlinkSync(pad);
+      console.log(`Oude back-up verwijderd: ${bestand}`);
+    }
+  }
 } catch (error) {
   try { fs.unlinkSync(temporary); } catch { /* geen tijdelijk bestand */ }
   for (const sidecar of temporarySidecars) {
