@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily Aqua+ Brandrisicoscan backup
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+Unit=brandrisicoscan-backup.service
+
+[Install]
+WantedBy=timers.target

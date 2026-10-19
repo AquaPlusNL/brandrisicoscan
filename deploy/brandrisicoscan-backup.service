@@ -1,0 +1,17 @@
+[Unit]
+Description=Backup Aqua+ Brandrisicoscan SQLite database
+
+[Service]
+Type=oneshot
+User=brandrisicoscan
+Group=brandrisicoscan
+WorkingDirectory=/opt/brandrisicoscan
+Environment=DB_PATH=/var/lib/brandrisicoscan/brandrisicoscan.db
+ExecStart=/usr/bin/node /opt/brandrisicoscan/scripts/backup.js /var/backups/brandrisicoscan
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/backups/brandrisicoscan
+RestrictAddressFamilies=AF_UNIX

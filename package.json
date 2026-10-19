@@ -1,0 +1,20 @@
+{
+  "name": "brandrisicoscan",
+  "version": "1.0.0",
+  "description": "Aqua+ Brandrisicoscan: beurs-kiosk met server-opslag en beheer achter Microsoft SSO + wachtwoord",
+  "private": true,
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --env-file-if-exists=.env --watch server.js",
+    "wachtwoord": "node scripts/wachtwoord.js",
+    "test": "node --test scripts/test.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

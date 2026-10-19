@@ -1,0 +1,28 @@
+[Unit]
+Description=Aqua+ Brandrisicoscan
+After=network.target
+
+[Service]
+Type=simple
+User=brandrisicoscan
+Group=brandrisicoscan
+WorkingDirectory=/opt/brandrisicoscan
+EnvironmentFile=/etc/brandrisicoscan.env
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+Environment=TRUST_PROXY=1
+Environment=DB_PATH=/var/lib/brandrisicoscan/brandrisicoscan.db
+ExecStart=/usr/bin/node /opt/brandrisicoscan/server.js
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/brandrisicoscan
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target

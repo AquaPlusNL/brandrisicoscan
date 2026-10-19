@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Aqua+ Brandrisicoscan</title>
+<link rel="icon" href="logo.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<header class="header">
+  <div>
+    <div class="header-title">Brandrisicoscan</div>
+    <div class="header-sub">Afvalmanagement &amp; Recyclingbeurs · Gorinchem</div>
+  </div>
+  <img src="logo.png" alt="Aqua+" id="logo">
+</header>
+
+<main class="main">
+
+  <div class="progress" id="progress">
+    <div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+    <div class="progress-label" id="progress-label">Stap 1 van 5</div>
+  </div>
+
+  <!-- START -->
+  <section class="screen active" id="start">
+    <div class="intro">
+      <svg class="sun" viewBox="0 0 500 1000" preserveAspectRatio="xMaxYMid slice" aria-hidden="true"><defs>
+    <radialGradient id="sunGradI" gradientUnits="userSpaceOnUse" cx="500" cy="500" r="500">
+      <stop offset="0" stop-color="var(--sun-centre, #B1A5AA)"></stop>
+      <stop offset="0.35" stop-color="var(--sun-centre, #B1A5AA)"></stop>
+      <stop offset="1" stop-color="var(--sun-tip, #4476B0)"></stop>
+    </radialGradient>
+    <!-- Stralen als witte mask-vorm + zwarte plus: één verflaag, zodat overlappende
+         stralen bij semi-transparante thema's (toneOnTone) niet donkerder opstapelen. -->
+    <mask id="plusCutI">
+      <g fill="#fff">
+      <rect x="465" y="0" width="70" height="500" transform="rotate(0,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(22.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(45,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(67.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(90,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(112.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(135,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(157.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(180,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(202.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(225,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(247.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(270,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(292.5,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(315,500,500)"></rect>
+      <rect x="465" y="0" width="70" height="500" transform="rotate(337.5,500,500)"></rect>
+      </g>
+      <path d="M325 465 H465 V325 H535 V465 H675 V535 H535 V675 H465 V535 H325 Z" fill="#000"></path>
+    </mask>
+  </defs>
+
+  <rect width="1000" height="1000" fill="url(#sunGradI)" mask="url(#plusCutI)"></rect>
+</svg>
+      <div class="eyebrow">Interactieve scan · Brandveiligheid</div>
+      <h1>Hoe brandveilig is jouw locatie?</h1>
+      <p>Beantwoord 5 vragen en ontdek direct het brandrisicoprofiel van jouw locatie.</p>
+      <button class="btn btn-white" data-act="startScan">Start de scan &#8594;</button>
+    </div>
+    <div class="how">
+      <div><span class="num">1</span><b>Activiteit</b><span>Wat doe je op locatie</span></div>
+      <div><span class="num">2</span><b>Omvang</b><span>Oppervlakte in m&#178;</span></div>
+      <div><span class="num">3</span><b>Brandlast</b><span>Opgeslagen materialen</span></div>
+      <div><span class="num">4</span><b>Beveiliging</b><span>Wat is er al aanwezig</span></div>
+      <div><span class="num">5</span><b>Omgeving</b><span>Bijzondere situaties</span></div>
+    </div>
+  </section>
+
+  <!-- STAP 1 -->
+  <section class="screen" id="step-0">
+    <div class="step-bar"><span class="num">1</span>Activiteit</div>
+    <h2 class="question">Wat beschrijft jouw activiteit het beste?</h2>
+    <p class="question-sub">Dit bepaalt het basisrisicoprofiel van jouw locatie.</p>
+    <div class="options">
+      <button class="opt" data-v="recycling" data-r="2"><span class="tick">&#10003;</span><span class="opt-label">Recyclingbedrijf</span><span class="opt-desc">Verwerking van papier, plastic, metaal of glas</span></button>
+      <button class="opt" data-v="afval" data-r="3"><span class="tick">&#10003;</span><span class="opt-label">Afvalverwerking</span><span class="opt-desc">Scheiden of verwerken van huishoudelijk of bedrijfsafval</span></button>
+      <button class="opt" data-v="gevaarlijk" data-r="4"><span class="tick">&#10003;</span><span class="opt-label">Gevaarlijke stoffen</span><span class="opt-desc">Chemisch afval, oli&#235;n, oplosmiddelen of PFAS</span></button>
+      <button class="opt" data-v="overslag" data-r="2"><span class="tick">&#10003;</span><span class="opt-label">Overslag / logistiek</span><span class="opt-desc">Opslag en transport van afvalstromen</span></button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" data-go="start">&#8592; Terug</button>
+      <button class="btn btn-primary" id="btn-0" disabled data-go="step-1">Volgende &#8594;</button>
+    </div>
+  </section>
+
+  <!-- STAP 2 -->
+  <section class="screen" id="step-1">
+    <div class="step-bar"><span class="num">2</span>Omvang van de locatie</div>
+    <h2 class="question">Hoe groot is jouw primaire locatie?</h2>
+    <p class="question-sub">Grotere locaties betekenen meer brandcompartimenten en een hogere blootstellingswaarde.</p>
+    <div class="range-val" id="range-display">2.500 <span>m&#178;</span></div>
+    <input type="range" id="opp-range" min="500" max="20000" step="500" value="2500" aria-label="Oppervlakte in vierkante meters">
+    <div class="range-labels"><span>500 m&#178;</span><span>5.000</span><span>10.000</span><span>20.000 m&#178;</span></div>
+    <div class="nav">
+      <button class="btn btn-secondary" data-go="step-0">&#8592; Terug</button>
+      <button class="btn btn-primary" data-go="step-2">Volgende &#8594;</button>
+    </div>
+  </section>
+
+  <!-- STAP 3 -->
+  <section class="screen" id="step-2">
+    <div class="step-bar"><span class="num">3</span>Brandlast</div>
+    <h2 class="question">Welke materialen worden opgeslagen of verwerkt?</h2>
+    <p class="question-sub">Kies alles wat van toepassing is.</p>
+    <div class="checks" data-group="materialen" data-btn="btn-2">
+      <button class="chk" data-v="kunststof"><span class="box">&#10003;</span><span>Kunststof, folie of rubber<small>Hoge brandlast</small></span></button>
+      <button class="chk" data-v="papier"><span class="box">&#10003;</span><span>Papier, karton of hout</span></button>
+      <button class="chk" data-v="chemisch"><span class="box">&#10003;</span><span>Chemische stoffen of vloeistoffen</span></button>
+      <button class="chk" data-v="accu"><span class="box">&#10003;</span><span>Lithium-accu's of e-waste<small>Risico op thermal runaway</small></span></button>
+      <button class="chk" data-v="gemengd"><span class="box">&#10003;</span><span>Gemengd restafval</span></button>
+      <button class="chk" data-v="metaal"><span class="box">&#10003;</span><span>Metaal of sloopmateriaal</span></button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" data-go="step-1">&#8592; Terug</button>
+      <button class="btn btn-primary" id="btn-2" disabled data-go="step-3">Volgende &#8594;</button>
+    </div>
+  </section>
+
+  <!-- STAP 4 -->
+  <section class="screen" id="step-3">
+    <div class="step-bar"><span class="num">4</span>Huidige beveiliging</div>
+    <h2 class="question">Welke brandbeveiliging is al aanwezig?</h2>
+    <p class="question-sub">Kies alles wat actief en gecertificeerd aanwezig is.</p>
+    <div class="checks" data-group="beveiliging" data-btn="btn-3">
+      <button class="chk" data-v="bmo"><span class="box">&#10003;</span><span>Brandmeldinstallatie (BMI / BMOAI)</span></button>
+      <button class="chk" data-v="sprinkler"><span class="box">&#10003;</span><span>Sprinklerinstallatie</span></button>
+      <button class="chk" data-v="schuim"><span class="box">&#10003;</span><span>Schuimblussysteem</span></button>
+      <button class="chk" data-v="nevel"><span class="box">&#10003;</span><span>Watermistsysteem</span></button>
+      <button class="chk" data-v="geen"><span class="box">&#10003;</span><span>Geen actieve blussystemen aanwezig</span></button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" data-go="step-2">&#8592; Terug</button>
+      <button class="btn btn-primary" id="btn-3" disabled data-go="step-4">Volgende &#8594;</button>
+    </div>
+  </section>
+
+  <!-- STAP 5 -->
+  <section class="screen" id="step-4">
+    <div class="step-bar"><span class="num">5</span>Omgeving</div>
+    <h2 class="question">Zijn er bijzondere omstandigheden?</h2>
+    <p class="question-sub">Optioneel, maar relevant voor een volledig advies.</p>
+    <div class="checks" data-group="omgeving">
+      <button class="chk" data-v="buiten"><span class="box">&#10003;</span><span>Buitenopslag of open terrein<small>Wind en weersinvloeden</small></span></button>
+      <button class="chk" data-v="verhoogd"><span class="box">&#10003;</span><span>Opslag boven 4 meter hoogte</span></button>
+      <button class="chk" data-v="omwonend"><span class="box">&#10003;</span><span>Nabij bebouwing of woonwijk<small>Maatschappelijk risico</small></span></button>
+      <button class="chk" data-v="verzekering"><span class="box">&#10003;</span><span>Verzekeraar heeft al opmerkingen gemaakt over het risico</span></button>
+      <button class="chk" data-v="uitbreiding"><span class="box">&#10003;</span><span>Uitbreiding of verbouwing gepland</span></button>
+    </div>
+    <div class="nav">
+      <button class="btn btn-secondary" data-go="step-3">&#8592; Terug</button>
+      <button class="btn btn-primary" data-act="calcResult">Bekijk mijn resultaat &#8594;</button>
+    </div>
+  </section>
+
+  <!-- RESULTAAT -->
+  <section class="screen" id="result">
+    <div class="pill" id="res-pill"></div>
+    <h2 class="result-title">Jouw risicoprofiel is <em id="res-em"></em></h2>
+    <div class="res-cols">
+    <div class="callout" id="res-callout">
+      <h3 id="res-head"></h3>
+      <p id="res-body"></p>
+      <div class="dmg"><b id="res-dmg"></b><span>gemiddelde schadeclaim in de afval- en recyclingsector</span></div>
+    </div>
+    <div class="findings">
+      <div class="eyebrow">Bevindingen voor jouw situatie</div>
+      <ul id="res-findings"></ul>
+    </div>
+    </div>
+    <p class="note">Deze scan geeft een eerste indicatie. Een risico-inventarisatie op locatie door een specialist geeft het volledige beeld.</p>
+    <div class="cta">
+      <h3>Wenst u hierover meer informatie of wilt u een vrijblijvend gesprek plannen?</h3>
+      <div class="row">
+        <button class="btn btn-white" data-go="lead">Ja, graag &#8594;</button>
+        <button class="btn btn-outline-white" data-act="declineLead">Nee, bedankt</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- GEGEVENS -->
+  <section class="screen" id="lead">
+    <div class="step-bar"><span class="num">+</span>Contactgegevens</div>
+    <div class="q-row">
+      <h2 class="question">Waar kunnen we je bereiken?</h2>
+      <button class="btn-restart" data-act="restart">&#8634; Scan opnieuw starten</button>
+    </div>
+    <p class="question-sub">Een specialist van Aqua+ neemt vrijblijvend contact met je op over jouw resultaat.</p>
+    <form class="form-card" id="lead-form" autocomplete="off" novalidate>
+      <div class="field">
+        <label for="f-bedrijf">Bedrijf</label>
+        <input id="f-bedrijf" name="bedrijf" autocapitalize="words" maxlength="100" enterkeyhint="next">
+      </div>
+      <div class="field">
+        <label for="f-naam">Naam</label>
+        <input id="f-naam" name="naam" autocapitalize="words" maxlength="100" enterkeyhint="next">
+      </div>
+      <div class="field">
+        <label for="f-contact">Telefoonnummer</label>
+        <input id="f-contact" name="telefoon" type="tel" inputmode="tel" autocomplete="off" maxlength="25" enterkeyhint="done">
+        <div class="hint" id="contact-hint">Bijvoorbeeld 06 12345678</div>
+      </div>
+      <p class="privacy">Door te versturen vraag je Aqua+ om contact met je op te nemen over deze scan. We gebruiken je gegevens alleen daarvoor. Lees in onze privacyverklaring op aqua.nl hoe we met je gegevens omgaan.</p>
+    </form>
+    <div class="nav">
+      <button class="btn btn-secondary" data-go="result">&#8592; Terug</button>
+      <button class="btn btn-primary" id="btn-send" disabled data-act="submitLead">Versturen &#8594;</button>
+    </div>
+  </section>
+
+  <!-- BEDANKT -->
+  <section class="screen" id="thanks">
+    <div class="thanks">
+      <div class="big-tick">&#10003;</div>
+      <h2 id="thanks-title">Bedankt!</h2>
+      <p>We hebben je gegevens ontvangen. Een specialist van Aqua+ neemt contact met je op.</p>
+      <button class="btn btn-primary" data-act="reset">Klaar</button>
+      <p class="countdown">Terug naar start over <b id="thanks-count"></b> seconden</p>
+    </div>
+  </section>
+
+  <div class="restart-row" id="restart-row">
+    <button class="btn-restart" data-act="restart">&#8634; Scan opnieuw starten</button>
+  </div>
+
+</main>
+
+<footer class="footer">
+  <span>www.aqua.nl &nbsp;·&nbsp; (0547) 286 000</span>
+  <em>Samen voor meer brandveiligheid</em>
+  <span class="outbox" id="outbox" hidden></span>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

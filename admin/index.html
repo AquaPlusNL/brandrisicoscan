@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beheer · Brandrisicoscan</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<header>
+  <img src="/logo.png" alt="Aqua+">
+  <h1>Brandrisicoscan · Beheer</h1>
+  <span class="wie">{{email}}</span>
+  <form method="post" action="/admin/uitloggen"><button class="btn klein" type="submit">Uitloggen</button></form>
+</header>
+<main>
+  <div class="tegels">
+    <div class="tegel"><b id="t-scans">–</b><span>scans gestart</span></div>
+    <div class="tegel"><b id="t-resultaat">–</b><span>tot resultaat</span></div>
+    <div class="tegel"><b id="t-leads">–</b><span>leads</span></div>
+    <div class="tegel"><b id="t-conversie">–</b><span>leads per resultaat</span></div>
+  </div>
+
+  <div class="kolommen">
+    <div><h2>Hoe ver komen bezoekers</h2><div class="kaart" id="trechter"></div></div>
+    <div><h2>Risicoprofiel</h2><div class="kaart" id="risico"></div>
+         <h2>Uitkomst</h2><div class="kaart" id="uitkomst"></div></div>
+  </div>
+
+  <h2>Leads</h2>
+  <div class="rij" style="margin-bottom:12px">
+    <a class="btn" href="/admin/export/leads.csv">Download leads (CSV)</a>
+    <a class="btn licht" href="/admin/export/scans.csv">Download alle scans (CSV)</a>
+    <span class="zacht" id="bewaar"></span>
+  </div>
+  <div class="tabel">
+    <table>
+      <thead><tr><th>Tijdstip</th><th>Bedrijf</th><th>Naam</th><th>Telefoon</th><th>Risico</th><th>Activiteit</th><th>m²</th><th>Materialen</th><th>Beveiliging</th><th>Omgeving</th><th></th></tr></thead>
+      <tbody id="leads"><tr><td colspan="11" class="zacht">Laden…</td></tr></tbody>
+    </table>
+  </div>
+
+  <h2>Wissen</h2>
+  <div class="kaart gevaar">
+    <p class="zacht">Download eerst de CSV-bestanden. Wissen is definitief.</p>
+    <div class="rij">
+      <button class="btn rood" data-wis="leads">Alle leads wissen</button>
+      <button class="btn rood" data-wis="scans">Alle scans wissen</button>
+      <button class="btn rood" data-wis="alles">Alles wissen</button>
+    </div>
+  </div>
+</main>
+<script src="/admin/admin.js"></script>
+</body>
+</html>

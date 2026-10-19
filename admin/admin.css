@@ -1,0 +1,45 @@
+@font-face { font-family:"Sofia Sans"; font-weight:400; font-style:normal; font-display:swap; src:url(/fonts/sofia-sans-400-normal.woff2) format("woff2"); }
+@font-face { font-family:"Sofia Sans"; font-weight:600; font-style:normal; font-display:swap; src:url(/fonts/sofia-sans-600-normal.woff2) format("woff2"); }
+@font-face { font-family:"Sofia Sans"; font-weight:400; font-style:italic; font-display:swap; src:url(/fonts/sofia-sans-400-italic.woff2) format("woff2"); }
+
+:root {
+  --aqua-blue: #0064AF; --aqua-blue-700: #004E88; --aqua-blue-dark: #1E65A3;
+  --ink: #26323D; --ink-soft: #59626B; --card: #F0F4F7; --border: #D8E2EA;
+  --white: #FFFFFF; --page: #F6F8FA; --red: #C0392B; --red-bg: #FDECEA;
+  --font: "Sofia Sans", Calibri, "Segoe UI", Arial, sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.45 var(--font); }
+header { background: var(--aqua-blue-dark); color: var(--white); padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+header img { height: 32px; }
+header h1 { font-size: 20px; font-weight: 600; margin: 0; flex: 1; }
+header form { margin: 0; }
+header .wie { opacity: .85; font-size: 14px; }
+main { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+h2 { font-size: 20px; font-weight: 600; margin: 32px 0 12px; }
+.kaart { background: var(--white); border: 1px solid var(--border); border-radius: 7px; padding: 24px; }
+.smal { max-width: 420px; margin: 64px auto; }
+.tegels { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.tegel { background: var(--white); border: 1px solid var(--border); border-radius: 7px; padding: 16px; }
+.tegel b { display: block; font-size: 32px; font-weight: 600; color: var(--aqua-blue); font-variant-numeric: tabular-nums; }
+.tegel span { color: var(--ink-soft); font-size: 14px; }
+.balk { display: grid; grid-template-columns: 140px 1fr 48px; gap: 12px; align-items: center; margin: 6px 0; font-size: 14px; }
+.balk i { display: block; height: 14px; background: var(--aqua-blue); border-radius: 3px; min-width: 2px; }
+.balk em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
+.kolommen { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 12px; }
+.tabel { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; background: var(--white); font-size: 14px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th { background: var(--card); font-weight: 600; white-space: nowrap; }
+.btn { font: inherit; font-weight: 600; padding: 9px 16px; border-radius: 7px; border: 2px solid var(--aqua-blue); background: var(--aqua-blue); color: var(--white); cursor: pointer; text-decoration: none; display: inline-block; }
+.btn.licht { background: var(--white); color: var(--aqua-blue); }
+.btn.rood { background: var(--white); color: var(--red); border-color: var(--red); }
+.btn.klein { padding: 4px 10px; font-size: 13px; }
+header .btn { background: transparent; border-color: var(--white); color: var(--white); padding: 6px 12px; }
+.rij { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+label { display: block; font-weight: 600; margin-bottom: 6px; }
+input[type=password] { width: 100%; font: inherit; padding: 10px 12px; border: 1px solid var(--border); border-radius: 5px; margin-bottom: 16px; }
+.fout { background: var(--red-bg); color: var(--red); padding: 10px 12px; border-radius: 5px; margin-bottom: 16px; }
+.fout:empty { display: none; }
+.zacht { color: var(--ink-soft); font-size: 14px; }
+.gevaar { border-color: var(--red); }
