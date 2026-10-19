@@ -1,7 +1,7 @@
 // npm test: start de server met een tijdelijke database en controleert API en beheer-afscherming.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -125,4 +125,20 @@ test('wachtwoord en id_token-claims', () => {
 test('leads ouder dan 28 dagen worden verwijderd', () => {
   const ids = db.prepare("SELECT id FROM leads WHERE bedrijf = 'Oud BV'").all().map((r) => r.id);
   assert.deepEqual(ids, ['00000000-0000-4000-8000-000000000027']);
+});
+
+test('back-up ruimt kopieën ouder dan 7 dagen op, en alleen eigen bestanden', () => {
+  const map2 = path.join(map, 'backups');
+  fs.mkdirSync(map2);
+  const oud = path.join(map2, 'brandrisicoscan-oud.db'), recent = path.join(map2, 'brandrisicoscan-recent.db'), anders = path.join(map2, 'notities.txt');
+  for (const p of [oud, recent, anders]) fs.writeFileSync(p, 'x');
+  const acht = new Date(Date.now() - 8 * 86_400_000);
+  fs.utimesSync(oud, acht, acht);
+  fs.utimesSync(anders, acht, acht);
+  const r = spawnSync(process.execPath, ['scripts/backup.js', map2], { env: { ...process.env, DB_PATH: DB }, encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  const over = fs.readdirSync(map2);
+  assert.ok(!over.includes('brandrisicoscan-oud.db'));
+  assert.ok(over.includes('brandrisicoscan-recent.db') && over.includes('notities.txt'));
+  assert.equal(over.filter((b) => /^brandrisicoscan-\d/.test(b)).length, 1);   // de nieuwe back-up
 });

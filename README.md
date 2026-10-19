@@ -142,8 +142,10 @@ cd /opt/brandrisicoscan && sudo npm ci --omit=dev && npm test
 - Kopieer nooit je lokale `.env` of `data/` naar de VM.
 
 Back-up: dagelijks om 03:00 naar `/var/backups/brandrisicoscan`, met
-`scripts/backup.js`. Kopieer de back-ups versleuteld naar een andere plek; ze
-bevatten namen en telefoonnummers.
+`scripts/backup.js`. Back-ups ouder dan 7 dagen worden daarbij verwijderd
+(`BACKUP_BEWAARDAGEN`), zodat een lead na uiterlijk 28 + 7 = 35 dagen overal weg
+is. Kopieer je back-ups naar een andere plek, doe dat dan versleuteld en met
+dezelfde termijn: ze bevatten namen en telefoonnummers.
 
 ## Nog te doen
 
