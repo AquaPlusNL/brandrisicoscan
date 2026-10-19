@@ -9,6 +9,7 @@
     "start": "node --env-file-if-exists=.env server.js",
     "dev": "node --env-file-if-exists=.env --watch server.js",
     "wachtwoord": "node scripts/wachtwoord.js",
+    "kioskcode": "node scripts/kioskcode.js",
     "test": "node --test scripts/test.js"
   },
   "dependencies": {

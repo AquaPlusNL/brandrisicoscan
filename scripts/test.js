@@ -7,13 +7,14 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { hashWachtwoord, controleerWachtwoord, controleerClaims } from '../src/auth.js';
+import { maakKioskcode } from '../src/kioskcode.js';
 
 const PORT = 3900 + Math.floor(Math.random() * 90);
 const BASE = `http://127.0.0.1:${PORT}`;
 const map = fs.mkdtempSync(path.join(os.tmpdir(), 'brs-test-'));
 const TENANT = crypto.randomUUID(), CLIENT = crypto.randomUUID();
 const DB = path.join(map, 'test.db');
-const KIOSK = 'k'.repeat(32);
+const KIOSK = maakKioskcode();
 
 // Twee leads vooraf: een van 29 dagen oud (moet weg bij het starten) en een van 27 (blijft).
 process.env.DB_PATH = DB;
@@ -63,6 +64,9 @@ test('zonder of met foute kioskcode wordt niets opgeslagen', async () => {
   }
   assert.equal((await post('/api/kiosk', {}, { 'x-kiosk-code': 'fout' })).status, 403);
   assert.equal((await post('/api/kiosk', {})).status, 204);
+  // Zo typt een iPad hem misschien: hoofdletters, spaties in plaats van streepjes
+  assert.equal((await post('/api/kiosk', {}, { 'x-kiosk-code': KIOSK.toUpperCase().replaceAll('-', ' ') })).status, 204);
+  assert.equal((await post('/api/kiosk', {}, { 'x-kiosk-code': KIOSK.slice(0, -1) })).status, 403);
   assert.equal(db.prepare("SELECT COUNT(*) AS n FROM leads WHERE bedrijf = 'Bot BV'").get().n, 0);
 });
 
@@ -141,4 +145,10 @@ test('back-up ruimt kopieën ouder dan 7 dagen op, en alleen eigen bestanden', (
   assert.ok(!over.includes('brandrisicoscan-oud.db'));
   assert.ok(over.includes('brandrisicoscan-recent.db') && over.includes('notities.txt'));
   assert.equal(over.filter((b) => /^brandrisicoscan-\d/.test(b)).length, 1);   // de nieuwe back-up
+});
+
+test('kioskcode: 3 groepen van 4, zonder verwarrende tekens, steeds anders', () => {
+  const codes = Array.from({ length: 200 }, maakKioskcode);
+  for (const c of codes) assert.match(c, /^[a-hjkmnp-z2-9]{4}-[a-hjkmnp-z2-9]{4}-[a-hjkmnp-z2-9]{4}$/);
+  assert.equal(new Set(codes).size, codes.length);
 });

@@ -67,7 +67,7 @@ sudo npm test
 ```sh
 sudo install -o root -g root -m 0600 /dev/null /etc/brandrisicoscan.env
 node scripts/wachtwoord.js     # vraagt het beheerwachtwoord, geeft de hash
-node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"   # kioskcode
+npm run kioskcode               # kioskcode, bijv. k7m4-pqx9-t2hw
 sudo nano /etc/brandrisicoscan.env
 ```
 
@@ -80,7 +80,7 @@ ENTRA_CLIENT_ID=<Application (client) ID>
 ENTRA_CLIENT_SECRET=<secret: kolom "Value", niet "Secret ID">
 ADMIN_EMAILS=<upn1>,<upn2>
 ADMIN_WACHTWOORD_HASH=<uitvoer van scripts/wachtwoord.js>
-KIOSK_CODE=<uitvoer van het tweede commando>
+KIOSK_CODE=<uitvoer van npm run kioskcode>
 LEAD_BEWAARDAGEN=28
 ```
 

@@ -77,8 +77,9 @@ Alleen gekoppelde tablets slaan scans en leads op. Wie `beurs.aqua.nl` gewoon
 opent, kan de scan doen, maar er wordt niets bewaard. Dat houdt bots en
 willekeurige bezoekers tegen. Het is één gedeelde code, geen echte login.
 
-1. Zet per beurs een nieuwe `KIOSK_CODE` in `/etc/brandrisicoscan.env` en herstart de service:
-   `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"`
+1. Zet per beurs een nieuwe `KIOSK_CODE` in `/etc/brandrisicoscan.env` en herstart de service.
+   Maak de code met `npm run kioskcode`, bijvoorbeeld `k7m4-pqx9-t2hw`. Hoofdletters,
+   spaties en streepjes tellen niet, dus intypen op de tablet gaat makkelijk.
 2. Open op elke tablet `https://beurs.aqua.nl/#kiosk=<code>`. De code staat na het
    `#`, gaat dus nooit naar de server of in een log, en verdwijnt meteen uit de adresbalk.
 3. Rechtsonder verschijnt kort *"Tablet gekoppeld"*. Staat er *"Tablet niet gekoppeld"*,
