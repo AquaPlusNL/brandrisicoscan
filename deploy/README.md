@@ -1,7 +1,7 @@
 # Op de publieke VM zetten (Ubuntu, systemd, Caddy)
 
-Eén Node-proces op `127.0.0.1:3001` achter Caddy. Geen Docker. Geschikt voor
-dezelfde VM als aqua-challenge: die gebruikt poort 3000, deze app 3001.
+Eén Node-proces op `127.0.0.1:3002` achter Caddy. Geen Docker. Op de publieke
+VM zijn 3000 en 3001 al in gebruik (stand 19-10-2026); deze app gebruikt 3002.
 
 Kopieer **nooit** een lokale `.env` of `data/` naar de VM.
 
@@ -10,7 +10,7 @@ Kopieer **nooit** een lokale `.env` of `data/` naar de VM.
 - **DNS**: A-record `beurs.aqua.nl` → publiek IP van de VM. Controleer met
   `nslookup beurs.aqua.nl`. Zonder DNS krijgt Caddy geen certificaat.
 - **Azure NSG**: 80 en 443 open voor iedereen, SSH alleen vanaf beheeradressen,
-  3001 **niet** open. Staat aqua-challenge er al, dan is dit al zo.
+  3002 **niet** open. Staat aqua-challenge er al, dan is dit al zo.
 - **Entra ID** (zie hoofd-README):
   - redirect-URI `https://beurs.aqua.nl/admin/callback` (platform Web);
   - *Assignment required* = Ja, en de beheerders toegewezen;
@@ -20,17 +20,17 @@ Kopieer **nooit** een lokale `.env` of `data/` naar de VM.
 
 ```sh
 sudo ss -ltnp                          # alles wat nu luistert, met procesnaam
-sudo ss -ltn | grep -q ':3001\b' && echo "3001 BEZET" || echo "3001 vrij"
+sudo ss -ltn | grep -q ':3002\b' && echo "3002 BEZET" || echo "3002 vrij"
 grep -rn reverse_proxy /etc/caddy/     # poorten die Caddy al gebruikt
 ```
 
-- **3001 vrij**: ga verder, er hoeft niets te veranderen.
-- **3001 bezet**: kies een vrije poort (bijv. 3002, controleer die op dezelfde
+- **3002 vrij**: ga verder, er hoeft niets te veranderen.
+- **3002 bezet**: kies een vrije poort (bijv. 3003, controleer die op dezelfde
   manier) en zet die op **beide** plekken, anders praat Caddy tegen de verkeerde app:
   - `deploy/brandrisicoscan.service`: `Environment=PORT=<poort>`
   - `deploy/Caddyfile.example`: `reverse_proxy 127.0.0.1:<poort>`
 
-  Vervang in de controles van stap 8 ook `3001` door je poort.
+  Vervang in de controles van stap 8 ook `3002` door je poort.
 
 Daarna:
 
@@ -128,7 +128,7 @@ Dagelijks om 03:00. Kopieën ouder dan 7 dagen worden automatisch verwijderd.
 curl -fsS https://beurs.aqua.nl/api/gezond                       # {"ok":true}
 curl -sI https://beurs.aqua.nl/admin | grep -i '^location'        # → /admin/login
 curl -s -o /dev/null -w '%{http_code}\n' -X POST https://beurs.aqua.nl/api/lead   # 403
-sudo ss -ltnp | grep 3001                                         # alleen 127.0.0.1:3001
+sudo ss -ltnp | grep 3002                                         # alleen 127.0.0.1:3002
 ```
 
 Daarna in de browser, op je eigen laptop:
