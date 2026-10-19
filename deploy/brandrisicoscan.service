@@ -10,7 +10,7 @@ WorkingDirectory=/opt/brandrisicoscan
 EnvironmentFile=/etc/brandrisicoscan.env
 Environment=NODE_ENV=production
 Environment=HOST=127.0.0.1
-Environment=PORT=3001
+Environment=PORT=3002
 Environment=TRUST_PROXY=1
 Environment=DB_PATH=/var/lib/brandrisicoscan/brandrisicoscan.db
 ExecStart=/usr/bin/node /opt/brandrisicoscan/server.js

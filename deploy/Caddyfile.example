@@ -3,5 +3,5 @@
 # VM wijzen; Caddy haalt daarna zelf het TLS-certificaat op.
 beurs.aqua.nl {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:3001
+	reverse_proxy 127.0.0.1:3002
 }
