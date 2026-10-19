@@ -6,6 +6,49 @@
 const IDLE_MS = 90000;       // terug naar start na 90 s zonder aanraking
 const THANKS_S = 10;         // bedankscherm telt af en gaat terug naar start
 const OUTBOX_KEY = 'aquaplus-brandrisicoscan-outbox';
+const KIOSK_KEY = 'aquaplus-brandrisicoscan-kiosk';
+
+// ---------- Kioskcode: alleen gekoppelde tablets mogen opslaan ----------
+/* Koppelen: open eenmalig /#kiosk=<code>. De code staat na het #, dus hij gaat
+   nooit mee in een verzoek of serverlog; we bewaren hem en halen hem uit de
+   adresbalk. Daarna gaat hij als header mee met elke verzending. */
+function koppelUitHash() {
+  if (!location.hash.startsWith('#kiosk=')) return false;
+  try { localStorage.setItem(KIOSK_KEY, decodeURIComponent(location.hash.slice(7))); } catch (e) {}
+  history.replaceState(null, '', location.pathname);
+  return true;
+}
+let netGekoppeld = koppelUitHash();
+// Staat de scan al open, dan herlaadt de browser niet bij een nieuw #-deel.
+window.addEventListener('hashchange', () => { if (koppelUitHash()) { netGekoppeld = true; controleerKiosk(); } });
+function kioskCode() {
+  try { return localStorage.getItem(KIOSK_KEY) || ''; } catch (e) { return ''; }
+}
+let gekoppeld = null;   // null = nog onbekend (bijv. offline)
+async function controleerKiosk() {
+  try {
+    const res = await fetch('/api/kiosk', { method: 'POST', headers: { 'x-kiosk-code': kioskCode() } });
+    if (res.status === 204) gekoppeld = true;
+    else if (res.status === 403) gekoppeld = false;
+  } catch (e) {}
+  if (netGekoppeld && gekoppeld) {
+    melding = 'Tablet gekoppeld';
+    setTimeout(() => { melding = ''; toonStatus(); }, 5000);
+  }
+  toonStatus();
+  if (gekoppeld) flush();
+}
+
+// Voettekst rechtsonder: alleen iets tonen als er iets aan de hand is.
+let melding = '';
+function toonStatus() {
+  const n = Object.keys(loadOutbox()).length;
+  const delen = [melding || (gekoppeld === false ? 'Tablet niet gekoppeld' : '')].filter(Boolean);
+  if (n) delen.push(n + ' nog niet verzonden');
+  const el = document.getElementById('outbox');
+  el.hidden = delen.length === 0;
+  el.textContent = delen.join(' · ');
+}
 
 // ---------- Outbox: niets kwijt als de beurs-wifi wegvalt ----------
 /* Elke scan en lead gaat eerst in localStorage en wordt daarna verstuurd.
@@ -36,10 +79,14 @@ async function flush() {
         let res;
         try {
           res = await fetch(item.url, {
-            method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(item.body),
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-kiosk-code': kioskCode() },
+            body: JSON.stringify(item.body),
           });
         } catch (e) { again = false; break; }   // offline: later opnieuw
-        if (res.status >= 500 || res.status === 429) { again = false; break; }
+        // Niet gekoppeld: bewaren, na koppelen gaat alles alsnog mee
+        if (res.status === 403) gekoppeld = false;
+        if (res.status >= 500 || res.status === 429 || res.status === 403) { again = false; break; }
         const box = loadOutbox();
         // Alleen weghalen als er intussen geen nieuwere stand in staat
         if (JSON.stringify(box[key]) === JSON.stringify(item)) { delete box[key]; saveOutbox(box); }
@@ -49,10 +96,7 @@ async function flush() {
     } while (again);
   } finally {
     flushing = false;
-    const n = Object.keys(loadOutbox()).length;
-    const el = document.getElementById('outbox');
-    el.hidden = n === 0;
-    el.textContent = n + ' nog niet verzonden';
+    toonStatus();
   }
 }
 window.addEventListener('online', flush);
@@ -320,4 +364,4 @@ function submitLead(e) {
 }
 
 reset();
-flush();
+controleerKiosk();

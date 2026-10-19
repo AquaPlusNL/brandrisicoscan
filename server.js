@@ -4,6 +4,7 @@
    Beheer (/admin): Microsoft SSO + extra wachtwoord. Zie README.md.
    ============================================================ */
 import express from 'express';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,6 +21,15 @@ const HOST = process.env.HOST || '127.0.0.1';
 // Scans zijn anoniem en vallen hier niet onder.
 const LEAD_BEWAARDAGEN = Number(process.env.LEAD_BEWAARDAGEN || 28);
 if (!(LEAD_BEWAARDAGEN > 0)) throw new Error('LEAD_BEWAARDAGEN moet een positief aantal dagen zijn.');
+/* Kioskcode: alleen gekoppelde tablets mogen scans en leads opslaan. Geen echte
+   login (één gedeelde code), wel een drempel tegen bots en willekeurige bezoekers. */
+const KIOSK_CODE = process.env.KIOSK_CODE || '';
+if (KIOSK_CODE.length < 24) {
+  throw new Error(
+    'KIOSK_CODE ontbreekt of is korter dan 24 tekens. Maak er een met:\n' +
+      "  node -e \"console.log(require('crypto').randomBytes(24).toString('base64url'))\"",
+  );
+}
 
 // Achter Caddy/nginx: TRUST_PROXY=1, anders is req.ip het IP van de proxy.
 app.set('trust proxy', Number(process.env.TRUST_PROXY || 0));
@@ -93,7 +103,18 @@ function geldigTelefoon(v) {
 const limiet = (naam, max) => (req, res, next) =>
   begrens(`${naam}:${req.ip}`, max, 60_000) ? next() : fout(res, 429, 'Te veel verzoeken.');
 
-app.post('/api/scan', limiet('scan', 120), (req, res) => {
+// Beide kanten hashen: gelijke lengte voor timingSafeEqual, en de lengte lekt niet.
+const sha = (v) => crypto.createHash('sha256').update(String(v)).digest();
+const KIOSK_HASH = sha(KIOSK_CODE);
+const kiosk = (req, res, next) =>
+  crypto.timingSafeEqual(sha(req.get('x-kiosk-code') || ''), KIOSK_HASH)
+    ? next()
+    : fout(res, 403, 'Deze tablet is niet gekoppeld.');
+
+/* Laat de tablet bij het laden zien of hij gekoppeld is. */
+app.post('/api/kiosk', limiet('kiosk', 30), kiosk, (req, res) => res.status(204).end());
+
+app.post('/api/scan', limiet('scan', 120), kiosk, (req, res) => {
   const b = req.body || {};
   const a = antwoorden(b);
   const stage_idx = STAGES.indexOf(b.stage);
@@ -104,7 +125,7 @@ app.post('/api/scan', limiet('scan', 120), (req, res) => {
   res.status(204).end();
 });
 
-app.post('/api/lead', limiet('lead', 20), (req, res) => {
+app.post('/api/lead', limiet('lead', 20), kiosk, (req, res) => {
   const b = req.body || {};
   const a = antwoorden(b);
   const tekst = (v) => (typeof v === 'string' ? v.trim().slice(0, 100) : '');

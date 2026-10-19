@@ -71,6 +71,24 @@ komen met het account erbij in het serverlog.
 - Typt iemand toch `beurs.aqua.nl/admin`, dan komt hij op de Microsoft-login van
   Aqua+. Zonder account in `ADMIN_EMAILS` én het wachtwoord komt hij niet verder.
 
+## Tablets koppelen (kioskcode)
+
+Alleen gekoppelde tablets slaan scans en leads op. Wie `beurs.aqua.nl` gewoon
+opent, kan de scan doen, maar er wordt niets bewaard. Dat houdt bots en
+willekeurige bezoekers tegen. Het is één gedeelde code, geen echte login.
+
+1. Zet per beurs een nieuwe `KIOSK_CODE` in `/etc/brandrisicoscan.env` en herstart de service:
+   `node -e "console.log(require('crypto').randomBytes(24).toString('base64url'))"`
+2. Open op elke tablet `https://beurs.aqua.nl/#kiosk=<code>`. De code staat na het
+   `#`, gaat dus nooit naar de server of in een log, en verdwijnt meteen uit de adresbalk.
+3. Rechtsonder verschijnt kort *"Tablet gekoppeld"*. Staat er *"Tablet niet gekoppeld"*,
+   dan klopt de code niet: opnieuw doen. Wat al ingevuld was blijft bewaard en gaat
+   na koppelen alsnog mee.
+
+Koppel de tablets **vlak voor elke beurs** opnieuw: Safari kan lokale opslag wissen
+van sites die een week niet gebruikt zijn. Deel de koppel-URL niet via chat of mail
+en laat hem niet zichtbaar op de stand liggen.
+
 ## Offline op de beursvloer
 
 De tablet zet elke scan en lead eerst lokaal in een outbox en verstuurt daarna.
@@ -85,10 +103,12 @@ dubbele rij.
 
 | Methode | Pad | Wat |
 | --- | --- | --- |
+| `POST` | `/api/kiosk` | Controleert de kioskcode (204 of 403). |
 | `POST` | `/api/scan` | Scanvoortgang (anoniem). Een eerder scherm overschrijft nooit een later scherm. |
 | `POST` | `/api/lead` | Contactformulier. Bedrijf, naam en telefoon worden ook op de server gecontroleerd. |
 | `GET` | `/api/gezond` | Statuscheck. |
 
+Scan en lead vragen de header `x-kiosk-code`; zonder geldige code 403.
 Alle antwoorden worden gecontroleerd tegen de vaste opties uit de scan. Per IP per
 minuut maximaal 120 scan-updates en 20 leads: ruim voor een paar tablets achter
 één beurs-IP, krap voor een script. Een 429 kost de kiosk niets, de outbox
@@ -114,7 +134,7 @@ cd /opt/brandrisicoscan && sudo npm ci --omit=dev && npm test
 ```
 
 - `/etc/brandrisicoscan.env` (root, 0600) met `BASE_URL=https://beurs.aqua.nl`,
-  de Entra-waarden, `ADMIN_EMAILS` en `ADMIN_WACHTWOORD_HASH`.
+  de Entra-waarden, `ADMIN_EMAILS`, `ADMIN_WACHTWOORD_HASH` en `KIOSK_CODE`.
 - `deploy/*.service` en `*.timer` naar `/etc/systemd/system/`, `deploy/Caddyfile.example`
   als `/etc/caddy/Caddyfile`, daarna `systemctl enable --now brandrisicoscan
   brandrisicoscan-backup.timer` en `systemctl reload caddy`.
