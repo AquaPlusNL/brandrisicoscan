@@ -124,28 +124,8 @@ exportbestanden en back-ups. Scans zijn anoniem en blijven staan.
 
 ## Op een VM zetten
 
-Zelfde werkwijze als `aqua-challenge/deploy/README.md`, met andere namen:
-
-```sh
-sudo useradd --system --home /opt/brandrisicoscan --shell /usr/sbin/nologin brandrisicoscan
-sudo install -d -o brandrisicoscan -g brandrisicoscan -m 0700 /var/lib/brandrisicoscan /var/backups/brandrisicoscan
-# code naar /opt/brandrisicoscan (eigenaar root), daarna:
-cd /opt/brandrisicoscan && sudo npm ci --omit=dev && npm test
-```
-
-- `/etc/brandrisicoscan.env` (root, 0600) met `BASE_URL=https://beurs.aqua.nl`,
-  de Entra-waarden, `ADMIN_EMAILS`, `ADMIN_WACHTWOORD_HASH` en `KIOSK_CODE`.
-- `deploy/*.service` en `*.timer` naar `/etc/systemd/system/`, `deploy/Caddyfile.example`
-  als `/etc/caddy/Caddyfile`, daarna `systemctl enable --now brandrisicoscan
-  brandrisicoscan-backup.timer` en `systemctl reload caddy`.
-- DNS `beurs.aqua.nl` → VM. Alleen 80/443 open, en SSH vanaf beheeradressen.
-- Kopieer nooit je lokale `.env` of `data/` naar de VM.
-
-Back-up: dagelijks om 03:00 naar `/var/backups/brandrisicoscan`, met
-`scripts/backup.js`. Back-ups ouder dan 7 dagen worden daarbij verwijderd
-(`BACKUP_BEWAARDAGEN`), zodat een lead na uiterlijk 28 + 7 = 35 dagen overal weg
-is. Kopieer je back-ups naar een andere plek, doe dat dan versleuteld en met
-dezelfde termijn: ze bevatten namen en telefoonnummers.
+Zie [deploy/README.md](deploy/README.md): stap voor stap, inclusief poortcontrole,
+Caddy naast aqua-challenge, back-ups en controle na livegang.
 
 ## Nog te doen
 

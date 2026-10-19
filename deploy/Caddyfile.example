@@ -1,6 +1,7 @@
-# Installeer als /etc/caddy/Caddyfile. DNS van beurs.aqua.nl moet naar de VM wijzen;
-# Caddy regelt daarna zelf het TLS-certificaat.
+# Voeg dit blok TOE aan /etc/caddy/Caddyfile; vervang niets wat er al staat
+# (bijvoorbeeld de site van aqua-challenge). DNS van beurs.aqua.nl moet naar de
+# VM wijzen; Caddy haalt daarna zelf het TLS-certificaat op.
 beurs.aqua.nl {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:3000
+	reverse_proxy 127.0.0.1:3001
 }
