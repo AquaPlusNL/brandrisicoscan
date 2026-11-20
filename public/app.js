@@ -238,6 +238,7 @@ function calcResult() {
   if (mat.includes('chemisch'))  score += 3;
   if (mat.includes('kunststof')) score += 2;
   if (mat.includes('papier'))    score += 1;
+  if (mat.includes('textiel'))   score += 2;
   if (mat.includes('gemengd'))   score += 1;
   const bev = state.beveiliging;
   if (bev.includes('sprinkler')) score -= 3;

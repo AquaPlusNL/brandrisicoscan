@@ -52,6 +52,7 @@ test('scan opslaan, ook herhaald en halverwege', async () => {
   assert.equal((await post('/api/scan', { id: crypto.randomUUID(), gestart: 'x', stage: 'step-0', uitkomst: 'afgehaakt' })).status, 204);
   assert.equal((await post('/api/scan', scan)).status, 204);
   assert.equal((await post('/api/scan', scan)).status, 204);
+  assert.equal((await post('/api/scan', { ...scan, id: crypto.randomUUID(), materialen: ['textiel', 'papier'] })).status, 204);
   // Oudere stand mag een verdere niet terugzetten (geen fout, wel genegeerd)
   assert.equal((await post('/api/scan', { ...scan, stage: 'step-1', uitkomst: 'afgehaakt' })).status, 204);
 });
