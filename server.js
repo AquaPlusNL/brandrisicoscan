@@ -56,7 +56,7 @@ const fout = (res, code, bericht) => res.status(code).json({ fout: bericht });
    ============================================================ */
 const OPTIES = {
   activiteit: ['recycling', 'afval', 'gevaarlijk', 'overslag'],
-  materialen: ['kunststof', 'papier', 'chemisch', 'accu', 'gemengd', 'metaal'],
+  materialen: ['kunststof', 'papier', 'textiel', 'chemisch', 'accu', 'gemengd', 'metaal'],
   beveiliging: ['bmo', 'sprinkler', 'schuim', 'nevel', 'geen'],
   omgeving: ['buiten', 'verhoogd', 'omwonend', 'verzekering', 'uitbreiding'],
   risico: ['Hoog risico', 'Matig risico', 'Beperkt risico'],
