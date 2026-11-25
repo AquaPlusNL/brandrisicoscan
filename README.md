@@ -130,5 +130,4 @@ Caddy naast aqua-challenge, back-ups en controle na livegang.
 
 ## Nog te doen
 
-1. **Header** noemt nog *"Afvalmanagement & Recyclingbeurs · Gorinchem"*; pas aan per beurs.
-2. **Client secret verloopt**: zet een herinnering op de vervaldatum.
+1. **Client secret verloopt**: zet een herinnering op de vervaldatum.
