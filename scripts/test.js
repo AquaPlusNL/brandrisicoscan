@@ -6,7 +6,7 @@ import crypto from 'node:crypto';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { hashWachtwoord, controleerWachtwoord, controleerClaims } from '../src/auth.js';
+import { hashWachtwoord, controleerWachtwoord, controleerClaims, maakRuimte } from '../src/auth.js';
 import { maakKioskcode } from '../src/kioskcode.js';
 
 const PORT = 3900 + Math.floor(Math.random() * 90);
@@ -108,6 +108,36 @@ test('login stuurt door naar Microsoft met PKCE, callback zonder state faalt', a
   assert.equal(url.searchParams.get('redirect_uri'), `${BASE}/admin/callback`);
   assert.match(r.headers.get('set-cookie'), /HttpOnly/i);
   assert.equal((await get('/admin/callback?code=x&state=y')).status, 400);
+});
+
+test('callback toont geen tekst uit de URL', async () => {
+  const r = await get('/admin/callback?error=Bel+direct+0612345678');
+  assert.equal(r.status, 401);
+  assert.ok(!(await r.text()).includes('0612345678'));
+});
+
+test('volle sessietabel: oudste lopende logins eruit, ingelogde sessies blijven', () => {
+  const sessies = new Map([
+    ['ingelogd', { email: 'beheer@aqua.nl' }],
+    ['login1', { login: {} }],
+    ['login2', { login: {} }],
+    ['login3', { login: {} }],
+  ]);
+  maakRuimte(sessies, 3);
+  assert.deepEqual([...sessies.keys()], ['ingelogd', 'login3']);
+});
+
+test('verwijderde lead staat niet meer in het databasebestand', () => {
+  const merk = 'Verwijderd' + crypto.randomUUID().slice(0, 8);
+  const id = crypto.randomUUID();
+  q.bewaarLead.run({ id, scan_id: null, tijdstip: 'x', ontvangen: Date.now(), bedrijf: merk, naam: merk,
+    telefoon: '0612345678', risico: '', score: null, activiteit: '', oppervlakte_m2: null,
+    materialen: '', beveiliging: '', omgeving: '' });
+  db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+  assert.ok(fs.readFileSync(DB).includes(merk));   // controle: de test ziet hem wel als hij er staat
+  q.verwijderLead.run(id);
+  db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+  assert.ok(!fs.readFileSync(DB).includes(merk));
 });
 
 test('wachtwoord en id_token-claims', () => {

@@ -123,6 +123,10 @@ controleert dit bij het starten en daarna elke zes uur. **Exporteer en verwerk
 leads dus binnen 28 dagen na de beurs**, en pas dezelfde termijn toe op
 exportbestanden en back-ups. Scans zijn anoniem en blijven staan.
 
+Een lead die je in het beheer verwijdert (bijvoorbeeld op verzoek van die persoon),
+is direct uit de database weg en wordt daarbij overschreven. In de dagelijkse
+back-ups staat hij nog tot **7 dagen** daarna (`BACKUP_BEWAARDAGEN`).
+
 ## Op een VM zetten
 
 Zie [deploy/README.md](deploy/README.md): stap voor stap, inclusief poortcontrole,
