@@ -7,6 +7,8 @@ fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
 export const db = new DatabaseSync(DB_PATH);
 db.exec('PRAGMA journal_mode = WAL');
+// Verwijderde leads met nullen overschrijven; anders blijven ze leesbaar in het bestand en in back-ups.
+db.exec('PRAGMA secure_delete = ON');
 
 /* De volgorde van de schermen. stage_idx is de index hierin; zo kan een
    later binnenkomende, oudere stand een scan niet terugzetten. */

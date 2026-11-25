@@ -11,6 +11,7 @@ const SESSIE_MS = 8 * 60 * 60 * 1000;    // werkdag; daarna opnieuw inloggen
 const STIL_MS = 30 * 60 * 1000;          // 30 min niets gedaan: uitgelogd (vergeten op een gedeeld apparaat)
 const LOGIN_MS = 10 * 60 * 1000;         // tijd om de Microsoft-login af te ronden
 const COOKIE = 'brs_beheer';
+const MAX_SESSIES = 10_000;              // geheugengrens; ruim genoeg voor een handvol beheerders
 
 export function laadConfig(env = process.env) {
   const c = {
@@ -92,6 +93,15 @@ setInterval(() => {
   for (const [id, s] of sessies) if (s.verloopt < nu) sessies.delete(id);
 }, 10 * 60 * 1000).unref();
 
+/* Vol? Dan gaan de oudste lopende logins eruit, nooit een ingelogde sessie. Anders
+   kan wie /admin/login blijft aanroepen de beheerders buitensluiten. */
+export function maakRuimte(sessies, max = MAX_SESSIES) {
+  for (const [id, s] of sessies) {
+    if (sessies.size < max) return;
+    if (s.login) sessies.delete(id);
+  }
+}
+
 /* ---------- routes ---------- */
 export function beheerAuth(app, cfg, { begrens, pagina }) {
   const fout = (res, code, tekst) => res.status(code).type('html').send(pagina('melding', { tekst }));
@@ -99,8 +109,8 @@ export function beheerAuth(app, cfg, { begrens, pagina }) {
   app.get('/admin/login', (req, res) => {
     if (!begrens(`login:${req.ip}`, 20, 60_000)) return fout(res, 429, 'Te veel pogingen. Wacht een minuut.');
     if (sessieVan(req)?.email) return res.redirect('/admin');   // al ingelogd: niet uitloggen via een link
-    // ponytail: vaste bovengrens in plaats van opruimen per IP; ruim genoeg voor een handvol beheerders
-    if (sessies.size > 10_000) return fout(res, 503, 'Even te druk. Probeer het over een paar minuten opnieuw.');
+    maakRuimte(sessies);
+    if (sessies.size >= MAX_SESSIES) return fout(res, 503, 'Even te druk. Probeer het over een paar minuten opnieuw.');
     const state = b64(24), nonce = b64(24), verifier = b64(48);
     nieuweSessie(res, cfg, { login: { state, nonce, verifier } }, LOGIN_MS);
     const url = new URL(`https://login.microsoftonline.com/${cfg.tenant}/oauth2/v2.0/authorize`);
@@ -127,7 +137,11 @@ export function beheerAuth(app, cfg, { begrens, pagina }) {
       // sessie blijft staan, anders logt een link naar /admin/callback je uit.
       if (s?.login) sessies.delete(s.id);
       else if (s?.email) return res.redirect('/admin');
-      if (req.query.error) return fout(res, 401, `Microsoft-login mislukt: ${req.query.error}`);
+      // Vaste tekst: wat in de URL staat, komt niet op de pagina (anders kan iedereen een eigen melding op ons domein zetten).
+      if (req.query.error) {
+        console.warn('[beheer] Microsoft-login mislukt:', String(req.query.error).slice(0, 100));
+        return fout(res, 401, 'Microsoft-login mislukt. Probeer het opnieuw.');
+      }
       if (!s?.login || typeof req.query.state !== 'string' || req.query.state !== s.login.state) {
         return fout(res, 400, 'Login verlopen of ongeldig. Probeer het opnieuw.');
       }
